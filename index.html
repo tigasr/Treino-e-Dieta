@@ -1,0 +1,514 @@
+import React, { useState, useEffect } from 'react';
+import { Calendar, CheckCircle, Circle, Play, X, TrendingUp, Award } from 'lucide-react';
+
+const HipertrofiaApp = () => {
+  const [activeTab, setActiveTab] = useState('treino');
+  const [completedWorkouts, setCompletedWorkouts] = useState({});
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [currentWeek, setCurrentWeek] = useState(1);
+
+  // Vídeos de exemplo para cada tipo de exercício
+  const exerciseVideos = {
+    'Supino reto': 'https://www.youtube.com/embed/rT7DgCr-3pg',
+    'Supino inclinado halteres': 'https://www.youtube.com/embed/8iPEnn-ltC8',
+    'Crossover': 'https://www.youtube.com/embed/taI4XduLpTk',
+    'Peck deck': 'https://www.youtube.com/embed/Z6UT7temN1A',
+    'Tríceps testa': 'https://www.youtube.com/embed/d_KZxkY_0cM',
+    'Tríceps corda': 'https://www.youtube.com/embed/2-LAMcpzODU',
+    'Barra fixa': 'https://www.youtube.com/embed/eGo4IYlbE5g',
+    'Remada curvada': 'https://www.youtube.com/embed/kBWAon7ItDw',
+    'Pulldown': 'https://www.youtube.com/embed/CAwf7n6Luuc',
+    'Remada baixa': 'https://www.youtube.com/embed/UCXxvVItLoM',
+    'Rosca direta': 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
+    'Rosca martelo': 'https://www.youtube.com/embed/zC3nLlEvin4',
+    'Agachamento livre': 'https://www.youtube.com/embed/ultWZbUMPL8',
+    'Leg press': 'https://www.youtube.com/embed/IZxyjW7MPJQ',
+    'Mesa flexora': 'https://www.youtube.com/embed/1Tq3QdYUuHs',
+    'Cadeira extensora': 'https://www.youtube.com/embed/YyvSfVjQeL0',
+    'Panturrilha sentado': 'https://www.youtube.com/embed/JbyjNymZP4Y',
+    'Desenvolvimento halter': 'https://www.youtube.com/embed/qEwKCR5JCog',
+    'Elevação lateral': 'https://www.youtube.com/embed/3VcKaXpzqRo',
+    'Elevação lateral inclinada': 'https://www.youtube.com/embed/qVsk4RyG2ss',
+    'Crucifixo inverso': 'https://www.youtube.com/embed/EA7u4Q_8jQ0',
+    'Abdominal máquina': 'https://www.youtube.com/embed/WqOUKgLyiIw',
+    'Prancha': 'https://www.youtube.com/embed/ASdvN_XEl_c',
+    'Terra romeno': 'https://www.youtube.com/embed/SHsUIZiNdeY',
+    'Hip thrust': 'https://www.youtube.com/embed/xDmFkJxPzeM',
+    'Afundo no lugar': 'https://www.youtube.com/embed/D7KaRcUTQeE',
+    'Good morning': 'https://www.youtube.com/embed/YA-h3n9L4YU',
+    'Panturrilha em pé': 'https://www.youtube.com/embed/gwLzBJYoWlI'
+  };
+
+  const workouts = [
+    {
+      day: 'Segunda',
+      icon: '💪',
+      title: 'Peito + Tríceps',
+      exercises: [
+        { name: 'Supino reto', sets: '4x8-10' },
+        { name: 'Supino inclinado halteres', sets: '4x10' },
+        { name: 'Crossover', sets: '3x12' },
+        { name: 'Peck deck', sets: '3x12' },
+        { name: 'Tríceps testa', sets: '3x10' },
+        { name: 'Tríceps corda', sets: '3x12-15' }
+      ]
+    },
+    {
+      day: 'Terça',
+      icon: '🦾',
+      title: 'Costas + Bíceps',
+      exercises: [
+        { name: 'Barra fixa', sets: '4x falha' },
+        { name: 'Remada curvada', sets: '4x8-10' },
+        { name: 'Pulldown', sets: '3x12' },
+        { name: 'Remada baixa', sets: '3x12' },
+        { name: 'Rosca direta', sets: '3x10' },
+        { name: 'Rosca martelo', sets: '3x12' }
+      ]
+    },
+    {
+      day: 'Quarta',
+      icon: '🦵',
+      title: 'Pernas',
+      exercises: [
+        { name: 'Agachamento livre', sets: '4x8' },
+        { name: 'Leg press', sets: '4x12' },
+        { name: 'Mesa flexora', sets: '3x12' },
+        { name: 'Cadeira extensora', sets: '3x12' },
+        { name: 'Panturrilha sentado', sets: '4x15' }
+      ]
+    },
+    {
+      day: 'Quinta',
+      icon: '🏋️',
+      title: 'Ombros + Core',
+      exercises: [
+        { name: 'Desenvolvimento halter', sets: '4x8-10' },
+        { name: 'Elevação lateral', sets: '4x12' },
+        { name: 'Elevação lateral inclinada', sets: '3x12' },
+        { name: 'Crucifixo inverso', sets: '3x15' },
+        { name: 'Abdominal máquina', sets: '3x15' },
+        { name: 'Prancha', sets: '3x60s' }
+      ]
+    },
+    {
+      day: 'Sexta',
+      icon: '🍑',
+      title: 'Posterior + Glúteo',
+      exercises: [
+        { name: 'Terra romeno', sets: '4x8' },
+        { name: 'Hip thrust', sets: '4x10' },
+        { name: 'Afundo no lugar', sets: '3x12' },
+        { name: 'Good morning', sets: '3x12' },
+        { name: 'Panturrilha em pé', sets: '4x15' }
+      ]
+    }
+  ];
+
+  const toggleWorkout = (week, day) => {
+    const key = `${week}-${day}`;
+    setCompletedWorkouts(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const getCompletedCount = () => {
+    return Object.values(completedWorkouts).filter(v => v).length;
+  };
+
+  const getWeekProgress = (week) => {
+    let completed = 0;
+    workouts.forEach(w => {
+      if (completedWorkouts[`${week}-${w.day}`]) completed++;
+    });
+    return Math.round((completed / 5) * 100);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center text-white mb-8 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
+            💪 PLANO DE HIPERTROFIA - TIAGO
+          </h1>
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
+              <span className="text-2xl mr-2">⚖️</span>
+              <strong>Peso:</strong> 57kg
+            </div>
+            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
+              <span className="text-2xl mr-2">📏</span>
+              <strong>Altura:</strong> 1,73m
+            </div>
+            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
+              <span className="text-2xl mr-2">🎯</span>
+              <strong>Objetivo:</strong> Hipertrofia
+            </div>
+          </div>
+          
+          {/* Stats */}
+          <div className="mt-6 bg-white/20 backdrop-blur-lg p-6 rounded-2xl border-2 border-white/30 inline-block">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{getCompletedCount()}</div>
+                <div className="text-sm opacity-90">Treinos completados</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{currentWeek}</div>
+                <div className="text-sm opacity-90">Semana atual</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{getWeekProgress(currentWeek)}%</div>
+                <div className="text-sm opacity-90">Progresso semanal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex justify-center gap-4 mb-8 flex-wrap">
+          <button
+            onClick={() => setActiveTab('treino')}
+            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
+              activeTab === 'treino'
+                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
+                : 'bg-white/90 text-purple-700 hover:scale-105'
+            }`}
+          >
+            🏋️ Treino
+          </button>
+          <button
+            onClick={() => setActiveTab('calendario')}
+            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
+              activeTab === 'calendario'
+                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
+                : 'bg-white/90 text-purple-700 hover:scale-105'
+            }`}
+          >
+            📅 Calendário
+          </button>
+          <button
+            onClick={() => setActiveTab('dieta')}
+            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
+              activeTab === 'dieta'
+                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
+                : 'bg-white/90 text-purple-700 hover:scale-105'
+            }`}
+          >
+            🍽️ Dieta
+          </button>
+        </div>
+
+        {/* Treino Tab */}
+        {activeTab === 'treino' && (
+          <div className="space-y-6">
+            {workouts.map((workout, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-3xl p-6 shadow-2xl hover:shadow-3xl transition-all hover:-translate-y-1"
+              >
+                <div className="flex items-center gap-4 mb-6 pb-4 border-b-4 border-purple-600">
+                  <div className="text-5xl">{workout.icon}</div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-purple-600">
+                      {workout.day.toUpperCase()} - {workout.title}
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => toggleWorkout(currentWeek, workout.day)}
+                    className={`p-3 rounded-full transition-all ${
+                      completedWorkouts[`${currentWeek}-${workout.day}`]
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
+                    }`}
+                  >
+                    {completedWorkouts[`${currentWeek}-${workout.day}`] ? (
+                      <CheckCircle size={28} />
+                    ) : (
+                      <Circle size={28} />
+                    )}
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {workout.exercises.map((exercise, exIdx) => (
+                    <div
+                      key={exIdx}
+                      onClick={() => setSelectedExercise(exercise)}
+                      className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:from-gray-100 hover:to-gray-50 transition-all cursor-pointer group"
+                    >
+                      <div className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">
+                        {exIdx + 1}
+                      </div>
+                      <div className="flex-1 font-medium text-gray-700 group-hover:text-purple-600 transition-colors">
+                        {exercise.name}
+                      </div>
+                      <div className="bg-pink-500 text-white px-4 py-2 rounded-full font-bold text-sm mr-3">
+                        {exercise.sets}
+                      </div>
+                      <Play className="text-purple-600 group-hover:text-pink-500 transition-colors" size={20} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Calendário Tab */}
+        {activeTab === 'calendario' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-purple-600 flex items-center gap-3">
+                  <Calendar size={32} />
+                  Calendário de Treinos - 12 Semanas
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
+                    disabled={currentWeek === 1}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-700 transition-colors"
+                  >
+                    ← Anterior
+                  </button>
+                  <button
+                    onClick={() => setCurrentWeek(Math.min(12, currentWeek + 1))}
+                    disabled={currentWeek === 12}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-700 transition-colors"
+                  >
+                    Próxima →
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(12)].map((_, weekNum) => {
+                  const week = weekNum + 1;
+                  const progress = getWeekProgress(week);
+                  const isDeload = week === 12;
+                  
+                  return (
+                    <div
+                      key={week}
+                      onClick={() => setCurrentWeek(week)}
+                      className={`p-5 rounded-2xl cursor-pointer transition-all ${
+                        currentWeek === week
+                          ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white scale-105 shadow-2xl'
+                          : 'bg-gray-100 hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-lg">
+                          Semana {week}
+                          {isDeload && ' 🎯'}
+                        </h3>
+                        <span className="text-2xl font-bold">{progress}%</span>
+                      </div>
+                      {isDeload && (
+                        <div className={`text-sm mb-3 ${currentWeek === week ? 'text-white' : 'text-orange-600'} font-semibold`}>
+                          ⚡ DELOAD WEEK
+                        </div>
+                      )}
+                      <div className="w-full bg-white/30 rounded-full h-2 mb-3">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            currentWeek === week ? 'bg-white' : 'bg-purple-600'
+                          }`}
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-5 gap-1">
+                        {workouts.map((w, idx) => (
+                          <div
+                            key={idx}
+                            className={`text-center p-2 rounded ${
+                              completedWorkouts[`${week}-${w.day}`]
+                                ? currentWeek === week
+                                  ? 'bg-white/30'
+                                  : 'bg-green-500 text-white'
+                                : currentWeek === week
+                                ? 'bg-white/10'
+                                : 'bg-white'
+                            }`}
+                          >
+                            {completedWorkouts[`${week}-${w.day}`] ? '✓' : w.icon}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Current Week Detail */}
+            <div className="bg-white rounded-3xl p-6 shadow-2xl">
+              <h3 className="text-2xl font-bold text-purple-600 mb-6">
+                📋 Semana {currentWeek} - Treinos
+              </h3>
+              <div className="space-y-3">
+                {workouts.map((workout, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => toggleWorkout(currentWeek, workout.day)}
+                    className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${
+                      completedWorkouts[`${currentWeek}-${workout.day}`]
+                        ? 'bg-green-100 border-2 border-green-500'
+                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl">{workout.icon}</span>
+                      <div>
+                        <div className="font-bold text-lg">{workout.day}</div>
+                        <div className="text-sm text-gray-600">{workout.title}</div>
+                      </div>
+                    </div>
+                    {completedWorkouts[`${currentWeek}-${workout.day}`] ? (
+                      <CheckCircle className="text-green-500" size={32} />
+                    ) : (
+                      <Circle className="text-gray-400" size={32} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Dieta Tab */}
+        {activeTab === 'dieta' && (
+          <div className="bg-white rounded-3xl p-8 shadow-2xl">
+            <h2 className="text-3xl font-bold text-center text-purple-600 mb-8">
+              🍽️ DIETA PARA HIPERTROFIA
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-800 text-white p-6 rounded-2xl text-center shadow-lg">
+                <div className="text-4xl mb-3">🔥</div>
+                <div className="text-3xl font-bold mb-2">2.400-2.500</div>
+                <div className="text-lg opacity-90">Calorias/dia</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-600 to-pink-800 text-white p-6 rounded-2xl text-center shadow-lg">
+                <div className="text-4xl mb-3">🥩</div>
+                <div className="text-3xl font-bold mb-2">~115g</div>
+                <div className="text-lg opacity-90">Proteínas</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-600 to-pink-600 text-white p-6 rounded-2xl text-center shadow-lg">
+                <div className="text-4xl mb-3">🍚</div>
+                <div className="text-3xl font-bold mb-2">260-285g</div>
+                <div className="text-lg opacity-90">Carboidratos</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-500 to-red-500 text-white p-6 rounded-2xl text-center shadow-lg">
+                <div className="text-4xl mb-3">🥑</div>
+                <div className="text-3xl font-bold mb-2">55-60g</div>
+                <div className="text-lg opacity-90">Gorduras</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { icon: '⚡', title: 'Pré-treino', food: 'Banana + pão integral ou aveia + pasta de amendoim/mel' },
+                { icon: '🌅', title: 'Pós-treino / Café da manhã', food: 'Ovos + pão/tapioca + fruta + leite ou iogurte' },
+                { icon: '🍱', title: 'Almoço', food: 'Proteína animal + arroz/massa + feijão + legumes + azeite' },
+                { icon: '🥤', title: 'Lanche da tarde', food: 'Iogurte + aveia/granola + fruta + castanhas' },
+                { icon: '🌙', title: 'Jantar', food: 'Proteína + carbo + legumes' },
+                { icon: '🌜', title: 'Ceia (opcional)', food: 'Leite, iogurte ou ovo' }
+              ].map((meal, idx) => (
+                <div key={idx} className="bg-gray-50 p-5 rounded-2xl border-l-4 border-purple-600">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-3xl">{meal.icon}</span>
+                    <h3 className="text-xl font-bold text-purple-600">{meal.title}</h3>
+                  </div>
+                  <p className="text-gray-700 ml-12">{meal.food}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gradient-to-r from-pink-500 to-red-500 text-white p-6 rounded-2xl mt-8">
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <span>💊</span> Suplementação Opcional
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-lg">
+                  <span>💊</span> Creatina 5g/dia
+                </div>
+                <div className="flex items-center gap-3 text-lg">
+                  <span>💊</span> Whey apenas se faltar proteína
+                </div>
+                <div className="flex items-center gap-3 text-lg">
+                  <span>💊</span> Cafeína opcional
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="text-center text-white mt-8 p-6 bg-white/10 backdrop-blur-lg rounded-2xl">
+          <h3 className="text-xl font-bold mb-2">📊 Periodização Recomendada</h3>
+          <p className="text-lg">12 semanas com deload na semana 12</p>
+          <p className="mt-4 opacity-80">✨ Bons treinos e boa alimentação! ✨</p>
+        </div>
+      </div>
+
+      {/* Video Modal */}
+      {selectedExercise && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedExercise(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold text-purple-600">
+                {selectedExercise.name}
+              </h3>
+              <button
+                onClick={() => setSelectedExercise(null)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={28} />
+              </button>
+            </div>
+            <div className="bg-pink-500 text-white px-4 py-2 rounded-full font-bold inline-block mb-4">
+              {selectedExercise.sets}
+            </div>
+            <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
+              {exerciseVideos[selectedExercise.name] ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={exerciseVideos[selectedExercise.name]}
+                  title={selectedExercise.name}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-white text-center p-8">
+                  <div>
+                    <Play size={64} className="mx-auto mb-4 opacity-50" />
+                    <p className="text-xl">Vídeo em breve!</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="mt-4 p-4 bg-purple-50 rounded-xl">
+              <p className="text-gray-700">
+                <strong>💡 Dica:</strong> Assista ao vídeo com atenção para executar o exercício com a técnica correta e evitar lesões!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default HipertrofiaApp;
