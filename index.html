@@ -1,459 +1,588 @@
-import React, { useState } from 'react';
-import { Calendar, CheckCircle, Circle, Play, X } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Hipertrofia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-export default function HipertrofiaApp() {
-  const [activeTab, setActiveTab] = useState('treino');
-  const [completedWorkouts, setCompletedWorkouts] = useState({});
-  const [selectedExercise, setSelectedExercise] = useState(null);
-  const [currentWeek, setCurrentWeek] = useState(1);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-  const workouts = [
-    {
-      day: 'Segunda',
-      icon: '💪',
-      title: 'Peito + Tríceps',
-      exercises: [
-        { name: 'Supino reto', sets: '4x8-10', video: 'rT7DgCr-3pg' },
-        { name: 'Supino inclinado halteres', sets: '4x10', video: '8iPEnn-ltC8' },
-        { name: 'Crossover', sets: '3x12', video: 'taI4XduLpTk' },
-        { name: 'Peck deck', sets: '3x12', video: 'Z6UT7temN1A' },
-        { name: 'Tríceps testa', sets: '3x10', video: 'd_KZxkY_0cM' },
-        { name: 'Tríceps corda', sets: '3x12-15', video: '2-LAMcpz0DU' }
-      ]
-    },
-    {
-      day: 'Terça',
-      icon: '🦾',
-      title: 'Costas + Bíceps',
-      exercises: [
-        { name: 'Barra fixa', sets: '4x falha', video: 'eGo4IYlbE5g' },
-        { name: 'Remada curvada', sets: '4x8-10', video: 'kBWAon7ItDw' },
-        { name: 'Pulldown', sets: '3x12', video: 'CAwf7n6Luuc' },
-        { name: 'Remada baixa', sets: '3x12', video: 'UCXxvVItLoM' },
-        { name: 'Rosca direta', sets: '3x10', video: 'ykJmrZ5v0Oo' },
-        { name: 'Rosca martelo', sets: '3x12', video: 'zC3nLlEvim4' }
-      ]
-    },
-    {
-      day: 'Quarta',
-      icon: '🦵',
-      title: 'Pernas',
-      exercises: [
-        { name: 'Agachamento livre', sets: '4x8', video: 'ultWZbUMPL8' },
-        { name: 'Leg press', sets: '4x12', video: 'IZxyjW7MPJQ' },
-        { name: 'Mesa flexora', sets: '3x12', video: '1Tq3QdYUuHs' },
-        { name: 'Cadeira extensora', sets: '3x12', video: 'YyvSfVjQeL0' },
-        { name: 'Panturrilha sentado', sets: '4x15', video: 'JbyjNymZP4Y' }
-      ]
-    },
-    {
-      day: 'Quinta',
-      icon: '🏋️',
-      title: 'Ombros + Core',
-      exercises: [
-        { name: 'Desenvolvimento halter', sets: '4x8-10', video: 'qEwKCRXJCog' },
-        { name: 'Elevação lateral', sets: '4x12', video: '3VcKaXpzqRo' },
-        { name: 'Elevação lateral inclinada', sets: '3x12', video: 'qVsk4RyG2ss' },
-        { name: 'Crucifixo inverso', sets: '3x15', video: 'EA7u4Q_8jQ0' },
-        { name: 'Abdominal máquina', sets: '3x15', video: 'WqOUKgLyihv' },
-        { name: 'Prancha', sets: '3x60s', video: 'ASdvN_XEl_c' }
-      ]
-    },
-    {
-      day: 'Sexta',
-      icon: '🍑',
-      title: 'Posterior + Glúteo',
-      exercises: [
-        { name: 'Terra romeno - 4x12-15', video: 'SHsUIZiNdeY' },
-        { name: 'Cadeira flexora - 4x12-15',, video: 'xDmFkJxPzeM' },
-        { name: 'Cadeira abdutora - 4x12-15', video: 'D7KaRcUTQeE' },
-        { name: 'Cadeira Adutora', sets: '4x12-15', video: 'YA-h3n9L4YU' },
-        { name: 'Panturrilha em pé', sets: '4x15', video: 'gwLzBJYoNJI' }
-      ]
-    }
-  ];
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-  const toggleWorkout = (week, day) => {
-    const key = `${week}-${day}`;
-    setCompletedWorkouts(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-in;
+        }
 
-  const getCompletedCount = () => {
-    return Object.values(completedWorkouts).filter(v => v).length;
-  };
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-  const getWeekProgress = (week) => {
-    let completed = 0;
-    workouts.forEach(w => {
-      if (completedWorkouts[`${week}-${w.day}`]) completed++;
-    });
-    return Math.round((completed / 5) * 100);
-  };
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 p-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center text-white mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
-            💪 PLANO DE HIPERTROFIA - TIAGO
-          </h1>
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
-              <span className="text-2xl mr-2">⚖️</span>
-              <strong>Peso:</strong> 57kg
+        .stat-box {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .stat-box span {
+            font-size: 1.8em;
+            margin-right: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .content {
+            display: none;
+            animation: slideIn 0.5s ease-in;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .workout-day {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .workout-day:hover {
+            transform: translateY(-5px);
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .day-icon {
+            font-size: 2.5em;
+        }
+
+        .day-title {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .exercise {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: linear-gradient(90deg, #f3f4f6 0%, #ffffff 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .exercise:hover {
+            background: linear-gradient(90deg, #e5e7eb 0%, #f9fafb 100%);
+            transform: translateX(5px);
+        }
+
+        .exercise-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .exercise-name {
+            flex: 1;
+            font-size: 1.1em;
+            color: #374151;
+        }
+
+        .exercise-sets {
+            background: #f5576c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .diet-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .macros {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .macro-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .macro-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .macro-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .macro-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .meal {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .meal-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .meal-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .supplements {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .supplement-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .supplement-item::before {
+            content: "💊";
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .tab { padding: 10px 20px; font-size: 1em; }
+            .day-title { font-size: 1.4em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 PLANO DE HIPERTROFIA - TIAGO</h1>
+            <div class="stats">
+                <div class="stat-box">
+                    <span>⚖️</span>
+                    <strong>Peso:</strong> 57kg
+                </div>
+                <div class="stat-box">
+                    <span>📏</span>
+                    <strong>Altura:</strong> 1,73m
+                </div>
+                <div class="stat-box">
+                    <span>📅</span>
+                    <strong>Frequência:</strong> 5x/semana
+                </div>
+                <div class="stat-box">
+                    <span>🎯</span>
+                    <strong>Objetivo:</strong> Hipertrofia
+                </div>
             </div>
-            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
-              <span className="text-2xl mr-2">📏</span>
-              <strong>Altura:</strong> 1,73m
-            </div>
-            <div className="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-2xl border-2 border-white/30">
-              <span className="text-2xl mr-2">🎯</span>
-              <strong>Objetivo:</strong> Hipertrofia
-            </div>
-          </div>
-          
-          <div className="mt-6 bg-white/20 backdrop-blur-lg p-6 rounded-2xl border-2 border-white/30 inline-block">
-            <div className="flex items-center gap-6 flex-wrap justify-center">
-              <div className="text-center">
-                <div className="text-3xl font-bold">{getCompletedCount()}</div>
-                <div className="text-sm opacity-90">Treinos feitos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">{currentWeek}</div>
-                <div className="text-sm opacity-90">Semana atual</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">{getWeekProgress(currentWeek)}%</div>
-                <div className="text-sm opacity-90">Progresso</div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <div className="flex justify-center gap-4 mb-8 flex-wrap">
-          <button
-            onClick={() => setActiveTab('treino')}
-            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
-              activeTab === 'treino'
-                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
-                : 'bg-white/90 text-purple-700 hover:scale-105'
-            }`}
-          >
-            🏋️ Treino
-          </button>
-          <button
-            onClick={() => setActiveTab('calendario')}
-            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
-              activeTab === 'calendario'
-                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
-                : 'bg-white/90 text-purple-700 hover:scale-105'
-            }`}
-          >
-            📅 Calendário
-          </button>
-          <button
-            onClick={() => setActiveTab('dieta')}
-            className={`px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg ${
-              activeTab === 'dieta'
-                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white scale-105'
-                : 'bg-white/90 text-purple-700 hover:scale-105'
-            }`}
-          >
-            🍽️ Dieta
-          </button>
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('treino')">🏋️ Treino</button>
+            <button class="tab" onclick="showTab('dieta')">🍽️ Dieta</button>
         </div>
 
-        {activeTab === 'treino' && (
-          <div className="space-y-6">
-            {workouts.map((workout, idx) => (
-              <div key={idx} className="bg-white rounded-3xl p-6 shadow-2xl">
-                <div className="flex items-center gap-4 mb-6 pb-4 border-b-4 border-purple-600">
-                  <div className="text-5xl">{workout.icon}</div>
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-purple-600">
-                      {workout.day.toUpperCase()} - {workout.title}
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => toggleWorkout(currentWeek, workout.day)}
-                    className={`p-3 rounded-full transition-all ${
-                      completedWorkouts[`${currentWeek}-${workout.day}`]
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
-                    }`}
-                  >
-                    {completedWorkouts[`${currentWeek}-${workout.day}`] ? (
-                      <CheckCircle size={28} />
-                    ) : (
-                      <Circle size={28} />
-                    )}
-                  </button>
+        <div id="treino" class="content active">
+            <div class="workout-day">
+                <div class="day-header">
+                    <div class="day-icon">💪</div>
+                    <div class="day-title">SEGUNDA - Peito + Tríceps</div>
                 </div>
-                <div className="space-y-3">
-                  {workout.exercises.map((exercise, exIdx) => (
-                    <div
-                      key={exIdx}
-                      onClick={() => setSelectedExercise(exercise)}
-                      className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:from-gray-100 hover:to-gray-50 transition-all cursor-pointer group"
-                    >
-                      <div className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
-                        {exIdx + 1}
-                      </div>
-                      <div className="flex-1 font-medium text-gray-700 group-hover:text-purple-600 transition-colors">
-                        {exercise.name}
-                      </div>
-                      <div className="bg-pink-500 text-white px-4 py-2 rounded-full font-bold text-sm mr-3 flex-shrink-0">
-                        {exercise.sets}
-                      </div>
-                      <Play className="text-purple-600 group-hover:text-pink-500 transition-colors flex-shrink-0" size={20} />
-                    </div>
-                  ))}
+                <div class="exercise">
+                    <div class="exercise-number">1</div>
+                    <div class="exercise-name">Supino reto</div>
+                    <div class="exercise-sets">4x8-10</div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+                <div class="exercise">
+                    <div class="exercise-number">2</div>
+                    <div class="exercise-name">Supino inclinado halteres</div>
+                    <div class="exercise-sets">4x10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">3</div>
+                    <div class="exercise-name">Crossover</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">4</div>
+                    <div class="exercise-name">Peck deck</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">5</div>
+                    <div class="exercise-name">Tríceps testa</div>
+                    <div class="exercise-sets">3x10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">6</div>
+                    <div class="exercise-name">Tríceps corda</div>
+                    <div class="exercise-sets">3x12-15</div>
+                </div>
+            </div>
 
-        {activeTab === 'calendario' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-6 shadow-2xl">
-              <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-                <h2 className="text-2xl font-bold text-purple-600 flex items-center gap-3">
-                  <Calendar size={32} />
-                  Calendário - 12 Semanas
+            <div class="workout-day">
+                <div class="day-header">
+                    <div class="day-icon">🦾</div>
+                    <div class="day-title">TERÇA - Costas + Bíceps</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">1</div>
+                    <div class="exercise-name">Barra fixa</div>
+                    <div class="exercise-sets">4x falha</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">2</div>
+                    <div class="exercise-name">Remada curvada</div>
+                    <div class="exercise-sets">4x8-10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">3</div>
+                    <div class="exercise-name">Pulldown</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">4</div>
+                    <div class="exercise-name">Remada baixa</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">5</div>
+                    <div class="exercise-name">Rosca direta</div>
+                    <div class="exercise-sets">3x10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">6</div>
+                    <div class="exercise-name">Rosca martelo</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+            </div>
+
+            <div class="workout-day">
+                <div class="day-header">
+                    <div class="day-icon">🦵</div>
+                    <div class="day-title">QUARTA - Pernas</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">1</div>
+                    <div class="exercise-name">Agachamento livre</div>
+                    <div class="exercise-sets">4x8</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">2</div>
+                    <div class="exercise-name">Leg press</div>
+                    <div class="exercise-sets">4x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">3</div>
+                    <div class="exercise-name">Mesa flexora</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">4</div>
+                    <div class="exercise-name">Cadeira extensora</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">5</div>
+                    <div class="exercise-name">Panturrilha sentado</div>
+                    <div class="exercise-sets">4x15</div>
+                </div>
+            </div>
+
+            <div class="workout-day">
+                <div class="day-header">
+                    <div class="day-icon">🏋️</div>
+                    <div class="day-title">QUINTA - Ombros + Core</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">1</div>
+                    <div class="exercise-name">Desenvolvimento halter</div>
+                    <div class="exercise-sets">4x8-10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">2</div>
+                    <div class="exercise-name">Elevação lateral</div>
+                    <div class="exercise-sets">4x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">3</div>
+                    <div class="exercise-name">Elevação lateral inclinada</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">4</div>
+                    <div class="exercise-name">Crucifixo inverso</div>
+                    <div class="exercise-sets">3x15</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">5</div>
+                    <div class="exercise-name">Abdominal máquina</div>
+                    <div class="exercise-sets">3x15</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">6</div>
+                    <div class="exercise-name">Prancha</div>
+                    <div class="exercise-sets">3x60s</div>
+                </div>
+            </div>
+
+            <div class="workout-day">
+                <div class="day-header">
+                    <div class="day-icon">🍑</div>
+                    <div class="day-title">SEXTA - Posterior + Glúteo</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">1</div>
+                    <div class="exercise-name">Terra romeno</div>
+                    <div class="exercise-sets">4x8</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">2</div>
+                    <div class="exercise-name">Hip thrust</div>
+                    <div class="exercise-sets">4x10</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">3</div>
+                    <div class="exercise-name">Afundo no lugar</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">4</div>
+                    <div class="exercise-name">Good morning</div>
+                    <div class="exercise-sets">3x12</div>
+                </div>
+                <div class="exercise">
+                    <div class="exercise-number">5</div>
+                    <div class="exercise-name">Panturrilha em pé</div>
+                    <div class="exercise-sets">4x15</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dieta" class="content">
+            <div class="diet-section">
+                <h2 style="text-align: center; color: #667eea; margin-bottom: 25px; font-size: 2em;">
+                    🍽️ DIETA PARA HIPERTROFIA
                 </h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
-                    disabled={currentWeek === 1}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-700 transition-colors"
-                  >
-                    ← Anterior
-                  </button>
-                  <button
-                    onClick={() => setCurrentWeek(Math.min(12, currentWeek + 1))}
-                    disabled={currentWeek === 12}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-700 transition-colors"
-                  >
-                    Próxima →
-                  </button>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(12)].map((_, weekNum) => {
-                  const week = weekNum + 1;
-                  const progress = getWeekProgress(week);
-                  const isDeload = week === 12;
-                  
-                  return (
-                    <div
-                      key={week}
-                      onClick={() => setCurrentWeek(week)}
-                      className={`p-5 rounded-2xl cursor-pointer transition-all ${
-                        currentWeek === week
-                          ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white scale-105 shadow-2xl'
-                          : 'bg-gray-100 hover:bg-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-lg">
-                          Semana {week}
-                          {isDeload && ' 🎯'}
-                        </h3>
-                        <span className="text-2xl font-bold">{progress}%</span>
-                      </div>
-                      {isDeload && (
-                        <div className={`text-sm mb-3 ${currentWeek === week ? 'text-white' : 'text-orange-600'} font-semibold`}>
-                          ⚡ DELOAD WEEK
-                        </div>
-                      )}
-                      <div className="w-full bg-white/30 rounded-full h-2 mb-3">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            currentWeek === week ? 'bg-white' : 'bg-purple-600'
-                          }`}
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <div className="grid grid-cols-5 gap-1">
-                        {workouts.map((w, idx) => (
-                          <div
-                            key={idx}
-                            className={`text-center p-2 rounded text-xs ${
-                              completedWorkouts[`${week}-${w.day}`]
-                                ? currentWeek === week
-                                  ? 'bg-white/30'
-                                  : 'bg-green-500 text-white'
-                                : currentWeek === week
-                                ? 'bg-white/10'
-                                : 'bg-white'
-                            }`}
-                          >
-                            {completedWorkouts[`${week}-${w.day}`] ? '✓' : w.icon}
-                          </div>
-                        ))}
-                      </div>
+                <div class="macros">
+                    <div class="macro-card">
+                        <div class="macro-icon">🔥</div>
+                        <div class="macro-value">2.400-2.500</div>
+                        <div class="macro-label">Calorias/dia</div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-6 shadow-2xl">
-              <h3 className="text-2xl font-bold text-purple-600 mb-6">
-                📋 Semana {currentWeek} - Treinos
-              </h3>
-              <div className="space-y-3">
-                {workouts.map((workout, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => toggleWorkout(currentWeek, workout.day)}
-                    className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${
-                      completedWorkouts[`${currentWeek}-${workout.day}`]
-                        ? 'bg-green-100 border-2 border-green-500'
-                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="text-3xl">{workout.icon}</span>
-                      <div>
-                        <div className="font-bold text-lg">{workout.day}</div>
-                        <div className="text-sm text-gray-600">{workout.title}</div>
-                      </div>
+                    <div class="macro-card">
+                        <div class="macro-icon">🥩</div>
+                        <div class="macro-value">~115g</div>
+                        <div class="macro-label">Proteínas</div>
                     </div>
-                    {completedWorkouts[`${currentWeek}-${workout.day}`] ? (
-                      <CheckCircle className="text-green-500" size={32} />
-                    ) : (
-                      <Circle className="text-gray-400" size={32} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'dieta' && (
-          <div className="bg-white rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center text-purple-600 mb-8">
-              🍽️ DIETA PARA HIPERTROFIA
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-purple-600 to-purple-800 text-white p-6 rounded-2xl text-center shadow-lg">
-                <div className="text-4xl mb-3">🔥</div>
-                <div className="text-3xl font-bold mb-2">2.400-2.500</div>
-                <div className="text-lg opacity-90">Calorias/dia</div>
-              </div>
-              <div className="bg-gradient-to-br from-pink-600 to-pink-800 text-white p-6 rounded-2xl text-center shadow-lg">
-                <div className="text-4xl mb-3">🥩</div>
-                <div className="text-3xl font-bold mb-2">~115g</div>
-                <div className="text-lg opacity-90">Proteínas</div>
-              </div>
-              <div className="bg-gradient-to-br from-purple-600 to-pink-600 text-white p-6 rounded-2xl text-center shadow-lg">
-                <div className="text-4xl mb-3">🍚</div>
-                <div className="text-3xl font-bold mb-2">260-285g</div>
-                <div className="text-lg opacity-90">Carboidratos</div>
-              </div>
-              <div className="bg-gradient-to-br from-pink-500 to-red-500 text-white p-6 rounded-2xl text-center shadow-lg">
-                <div className="text-4xl mb-3">🥑</div>
-                <div className="text-3xl font-bold mb-2">55-60g</div>
-                <div className="text-lg opacity-90">Gorduras</div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                { icon: '⚡', title: 'Pré-treino', food: 'Banana + pão integral ou aveia + pasta de amendoim/mel' },
-                { icon: '🌅', title: 'Pós-treino / Café da manhã', food: 'Ovos + pão/tapioca + fruta + leite ou iogurte' },
-                { icon: '🍱', title: 'Almoço', food: 'Proteína animal + arroz/massa + feijão + legumes + azeite' },
-                { icon: '🥤', title: 'Lanche da tarde', food: 'Iogurte + aveia/granola + fruta + castanhas' },
-                { icon: '🌙', title: 'Jantar', food: 'Proteína + carbo + legumes' },
-                { icon: '🌜', title: 'Ceia (opcional)', food: 'Leite, iogurte ou ovo' }
-              ].map((meal, idx) => (
-                <div key={idx} className="bg-gray-50 p-5 rounded-2xl border-l-4 border-purple-600">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl">{meal.icon}</span>
-                    <h3 className="text-xl font-bold text-purple-600">{meal.title}</h3>
-                  </div>
-                  <p className="text-gray-700 ml-12">{meal.food}</p>
+                    <div class="macro-card">
+                        <div class="macro-icon">🍚</div>
+                        <div class="macro-value">260-285g</div>
+                        <div class="macro-label">Carboidratos</div>
+                    </div>
+                    <div class="macro-card">
+                        <div class="macro-icon">🥑</div>
+                        <div class="macro-value">55-60g</div>
+                        <div class="macro-label">Gorduras</div>
+                    </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="bg-gradient-to-r from-pink-500 to-red-500 text-white p-6 rounded-2xl mt-8">
-              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span>💊</span> Suplementação Opcional
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-lg">
-                  <span>💊</span> Creatina 5g/dia
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">⚡</span>Pré-treino
+                    </div>
+                    <p>Banana + pão integral ou aveia + pasta de amendoim/mel</p>
                 </div>
-                <div className="flex items-center gap-3 text-lg">
-                  <span>💊</span> Whey apenas se faltar proteína
-                </div>
-                <div className="flex items-center gap-3 text-lg">
-                  <span>💊</span> Cafeína opcional
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        <div className="text-center text-white mt-8 p-6 bg-white/10 backdrop-blur-lg rounded-2xl">
-          <h3 className="text-xl font-bold mb-2">📊 Periodização Recomendada</h3>
-          <p className="text-lg">12 semanas com deload na semana 12</p>
-          <p className="mt-4 opacity-80">✨ Bons treinos e boa alimentação! ✨</p>
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">🌅</span>Pós-treino / Café da manhã
+                    </div>
+                    <p>Ovos + pão/tapioca + fruta + leite ou iogurte</p>
+                </div>
+
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">🍱</span>Almoço
+                    </div>
+                    <p>Proteína animal + arroz/massa + feijão + legumes + azeite</p>
+                </div>
+
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">🥤</span>Lanche da tarde
+                    </div>
+                    <p>Iogurte + aveia/granola + fruta + castanhas</p>
+                </div>
+
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">🌙</span>Jantar
+                    </div>
+                    <p>Proteína + carbo + legumes</p>
+                </div>
+
+                <div class="meal">
+                    <div class="meal-title">
+                        <span class="meal-icon">🌜</span>Ceia (opcional)
+                    </div>
+                    <p>Leite, iogurte ou ovo</p>
+                </div>
+
+                <div class="supplements">
+                    <h3 style="margin-bottom: 15px; font-size: 1.5em;">💊 Suplementação Opcional</h3>
+                    <div class="supplement-item">Creatina 5g/dia</div>
+                    <div class="supplement-item">Whey apenas se faltar proteína</div>
+                    <div class="supplement-item">Cafeína opcional</div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      {selectedExercise && (
-        <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedExercise(null)}
-        >
-          <div
-            className="bg-white rounded-3xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-purple-600">
-                {selectedExercise.name}
-              </h3>
-              <button
-                onClick={() => setSelectedExercise(null)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X size={28} />
-              </button>
-            </div>
-            <div className="bg-pink-500 text-white px-4 py-2 rounded-full font-bold inline-block mb-4">
-              {selectedExercise.sets}
-            </div>
-            <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${selectedExercise.video}`}
-                title={selectedExercise.name}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-            <div className="mt-4 p-4 bg-purple-50 rounded-xl">
-              <p className="text-gray-700">
-                <strong>💡 Dica:</strong> Assista ao vídeo com atenção para executar o exercício com a técnica correta e evitar lesões!
-              </p>
-            </div>
-          </div>
+        <div class="footer">
+            <h3>📊 Periodização Recomendada</h3>
+            <p style="margin-top: 10px; font-size: 1.1em;">12 semanas com deload na semana 12</p>
+            <p style="margin-top: 20px; opacity: 0.8;">✨ Bons treinos e boa alimentação! ✨</p>
         </div>
-      )}
     </div>
-  );
-}
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>
